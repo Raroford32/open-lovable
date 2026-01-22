@@ -16,7 +16,7 @@ function sanitizeQuotes(text: string): string {
     .replace(/[\u00A0]/g, ' '); // Non-breaking space
 }
 
-function detectLanguage(html: string | undefined, metadata: Record<string, any> | undefined, url: string): string {
+function detectLanguage(html: string | undefined, metadata: Record<string, any> | undefined): string {
   if (metadata?.language && typeof metadata.language === 'string') {
     return metadata.language;
   }
@@ -34,25 +34,15 @@ function detectLanguage(html: string | undefined, metadata: Record<string, any> 
   }
 
   if (html) {
-    const htmlLangMatch = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+    const searchTarget = html.slice(0, 8000);
+    const htmlLangMatch = searchTarget.match(/<html[^>]*\slang=["']([^"']+)["']/i);
     if (htmlLangMatch?.[1]) {
       return htmlLangMatch[1];
     }
-    const metaLangMatch = html.match(/<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']+)["']/i);
+    const metaLangMatch = searchTarget.match(/<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']+)["']/i);
     if (metaLangMatch?.[1]) {
       return metaLangMatch[1];
     }
-  }
-
-  try {
-    const urlObject = new URL(url);
-    const hostParts = urlObject.hostname.split('.');
-    const tld = hostParts[hostParts.length - 1];
-    if (tld && tld.length === 2) {
-      return tld;
-    }
-  } catch {
-    // Ignore URL parse errors and fall back to unknown
   }
 
   return 'unknown';
@@ -125,7 +115,7 @@ export async function POST(request: NextRequest) {
     // Extract structured data from the response
     const title = metadata?.title || '';
     const description = metadata?.description || '';
-    const language = detectLanguage(html, metadata, url);
+    const language = detectLanguage(html, metadata);
     
     // Format content for AI
     const formattedContent = `

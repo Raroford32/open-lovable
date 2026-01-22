@@ -553,12 +553,13 @@ Remember: You are a SURGEON making a precise incision, not an artist repainting 
         
         const scrapedWebsites = context?.conversationContext?.scrapedWebsites || [];
         const latestScrapedWebsite = scrapedWebsites[scrapedWebsites.length - 1];
-        const scrapedLanguage = latestScrapedWebsite?.content?.language
-          || latestScrapedWebsite?.content?.metadata?.language
-          || latestScrapedWebsite?.content?.metadata?.lang
-          || latestScrapedWebsite?.content?.metadata?.locale
-          || latestScrapedWebsite?.content?.metadata?.ogLocale
-          || latestScrapedWebsite?.content?.metadata?.contentLanguage;
+        const scrapedContent = latestScrapedWebsite?.content;
+        const scrapedLanguage = scrapedContent?.language
+          || scrapedContent?.metadata?.language
+          || scrapedContent?.metadata?.lang
+          || scrapedContent?.metadata?.locale
+          || scrapedContent?.metadata?.ogLocale
+          || scrapedContent?.metadata?.contentLanguage;
         const languageLabel = scrapedLanguage && scrapedLanguage !== 'unknown' ? scrapedLanguage : 'the original language from the scraped content';
         const languageInstruction = scrapedWebsites.length > 0 ? `
 WEBSITE LANGUAGE PRESERVATION:
