@@ -54,6 +54,7 @@ interface ScrapeData {
   title?: string;
   source?: string;
   screenshot?: string;
+  language?: string;
   structured?: any;
   metadata?: any;
   message?: string;

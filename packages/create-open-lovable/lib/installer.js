@@ -162,31 +162,14 @@ async function createEnvFile(projectPath, sandbox, answers) {
   }
   
   // Optional AI provider keys
-  envContent += `# OPTIONAL - AI Providers\n`;
+  envContent += `# OPTIONAL - AI Provider (OpenRouter)\n`;
   
-  if (answers.anthropicApiKey) {
-    envContent += `ANTHROPIC_API_KEY=${answers.anthropicApiKey}\n`;
+  if (answers.openrouterApiKey) {
+    envContent += `OPENROUTER_API_KEY=${answers.openrouterApiKey}\n`;
   } else {
-    envContent += `# ANTHROPIC_API_KEY=your_anthropic_api_key_here\n`;
+    envContent += `# OPENROUTER_API_KEY=your_openrouter_api_key_here\n`;
   }
-  
-  if (answers.openaiApiKey) {
-    envContent += `OPENAI_API_KEY=${answers.openaiApiKey}\n`;
-  } else {
-    envContent += `# OPENAI_API_KEY=your_openai_api_key_here\n`;
-  }
-  
-  if (answers.geminiApiKey) {
-    envContent += `GEMINI_API_KEY=${answers.geminiApiKey}\n`;
-  } else {
-    envContent += `# GEMINI_API_KEY=your_gemini_api_key_here\n`;
-  }
-  
-  if (answers.groqApiKey) {
-    envContent += `GROQ_API_KEY=${answers.groqApiKey}\n`;
-  } else {
-    envContent += `# GROQ_API_KEY=your_groq_api_key_here\n`;
-  }
+  envContent += `# OPENROUTER_BASE_URL=https://openrouter.ai/api/v1\n`;
   
   await fs.writeFile(path.join(projectPath, '.env'), envContent);
   await fs.writeFile(path.join(projectPath, '.env.example'), envContent.replace(/=.+/g, '=your_key_here'));
@@ -215,15 +198,10 @@ async function createEnvExample(projectPath, sandbox) {
     envContent += `VERCEL_TOKEN=your_access_token\n\n`;
   }
   
-  envContent += `# OPTIONAL - AI Providers (need at least one)\n`;
-  envContent += `# Get yours at https://console.anthropic.com\n`;
-  envContent += `ANTHROPIC_API_KEY=your_anthropic_api_key_here\n\n`;
-  envContent += `# Get yours at https://platform.openai.com\n`;
-  envContent += `OPENAI_API_KEY=your_openai_api_key_here\n\n`;
-  envContent += `# Get yours at https://aistudio.google.com/app/apikey\n`;
-  envContent += `GEMINI_API_KEY=your_gemini_api_key_here\n\n`;
-  envContent += `# Get yours at https://console.groq.com\n`;
-  envContent += `GROQ_API_KEY=your_groq_api_key_here\n`;
+  envContent += `# OPTIONAL - AI Provider (OpenRouter)\n`;
+  envContent += `# Get yours at https://openrouter.ai/keys\n`;
+  envContent += `OPENROUTER_API_KEY=your_openrouter_api_key_here\n`;
+  envContent += `OPENROUTER_BASE_URL=https://openrouter.ai/api/v1\n`;
   
   await fs.writeFile(path.join(projectPath, '.env.example'), envContent);
 }

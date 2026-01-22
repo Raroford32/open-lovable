@@ -151,39 +151,15 @@ export function getEnvPrompts(provider) {
     message: 'Select AI providers to configure:',
     when: (answers) => answers.addAiKeys,
     choices: [
-      { name: 'Anthropic (Claude)', value: 'anthropic' },
-      { name: 'OpenAI (GPT)', value: 'openai' },
-      { name: 'Google (Gemini)', value: 'gemini' },
-      { name: 'Groq', value: 'groq' }
+      { name: 'OpenRouter (OpenAI GPT-5.2 Codex)', value: 'openrouter' }
     ]
   });
 
   prompts.push({
     type: 'input',
-    name: 'anthropicApiKey',
-    message: 'Anthropic API key:',
-    when: (answers) => answers.aiProviders && answers.aiProviders.includes('anthropic')
-  });
-
-  prompts.push({
-    type: 'input',
-    name: 'openaiApiKey',
-    message: 'OpenAI API key:',
-    when: (answers) => answers.aiProviders && answers.aiProviders.includes('openai')
-  });
-
-  prompts.push({
-    type: 'input',
-    name: 'geminiApiKey',
-    message: 'Gemini API key:',
-    when: (answers) => answers.aiProviders && answers.aiProviders.includes('gemini')
-  });
-
-  prompts.push({
-    type: 'input',
-    name: 'groqApiKey',
-    message: 'Groq API key:',
-    when: (answers) => answers.aiProviders && answers.aiProviders.includes('groq')
+    name: 'openrouterApiKey',
+    message: 'OpenRouter API key:',
+    when: (answers) => answers.aiProviders && answers.aiProviders.includes('openrouter')
   });
 
   return prompts;

@@ -16,6 +16,38 @@ function sanitizeQuotes(text: string): string {
     .replace(/[\u00A0]/g, ' '); // Non-breaking space
 }
 
+function detectLanguage(html: string | undefined, metadata: Record<string, any> | undefined): string {
+  if (metadata?.language && typeof metadata.language === 'string') {
+    return metadata.language;
+  }
+  if (metadata?.lang && typeof metadata.lang === 'string') {
+    return metadata.lang;
+  }
+  if (metadata?.locale && typeof metadata.locale === 'string') {
+    return metadata.locale;
+  }
+  if (metadata?.ogLocale && typeof metadata.ogLocale === 'string') {
+    return metadata.ogLocale;
+  }
+  if (metadata?.contentLanguage && typeof metadata.contentLanguage === 'string') {
+    return metadata.contentLanguage;
+  }
+
+  if (html) {
+    const searchTarget = html.slice(0, 8000);
+    const htmlLangMatch = searchTarget.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+    if (htmlLangMatch?.[1]) {
+      return htmlLangMatch[1];
+    }
+    const metaLangMatch = searchTarget.match(/<meta[^>]*http-equiv=["']content-language["'][^>]*content=["']([^"']+)["']/i);
+    if (metaLangMatch?.[1]) {
+      return metaLangMatch[1];
+    }
+  }
+
+  return 'unknown';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json();
@@ -72,8 +104,7 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to scrape content');
     }
     
-    const { markdown, metadata, screenshot, actions } = data.data;
-    // html available but not used in current implementation
+    const { markdown, metadata, screenshot, actions, html } = data.data;
     
     // Get screenshot from either direct field or actions result
     const screenshotUrl = screenshot || actions?.screenshots?.[0] || null;
@@ -84,6 +115,7 @@ export async function POST(request: NextRequest) {
     // Extract structured data from the response
     const title = metadata?.title || '';
     const description = metadata?.description || '';
+    const language = detectLanguage(html, metadata);
     
     // Format content for AI
     const formattedContent = `
@@ -99,19 +131,22 @@ ${sanitizedMarkdown}
       success: true,
       url,
       content: formattedContent,
+      language,
       screenshot: screenshotUrl,
       structured: {
         title: sanitizeQuotes(title),
         description: sanitizeQuotes(description),
         content: sanitizedMarkdown,
         url,
-        screenshot: screenshotUrl
+        screenshot: screenshotUrl,
+        language
       },
       metadata: {
         scraper: 'firecrawl-enhanced',
         timestamp: new Date().toISOString(),
         contentLength: formattedContent.length,
         cached: data.data.cached || false, // Indicates if data came from cache
+        language,
         ...metadata
       },
       message: 'URL scraped successfully with Firecrawl (with caching for 500% faster performance)'
