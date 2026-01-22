@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createGroq } from '@ai-sdk/groq';
-import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import type { SandboxState } from '@/types/sandbox';
 import { selectFilesForEdit, getFileContents, formatFilesForAI } from '@/lib/context-selector';
@@ -14,34 +11,13 @@ import { appConfig } from '@/config/app.config';
 // Force dynamic route to enable streaming
 export const dynamic = 'force-dynamic';
 
-// Check if we're using Vercel AI Gateway
-const isUsingAIGateway = !!process.env.AI_GATEWAY_API_KEY;
-const aiGatewayBaseURL = 'https://ai-gateway.vercel.sh/v1';
-
-console.log('[generate-ai-code-stream] AI Gateway config:', {
-  isUsingAIGateway,
-  hasGroqKey: !!process.env.GROQ_API_KEY,
-  hasAIGatewayKey: !!process.env.AI_GATEWAY_API_KEY
+console.log('[generate-ai-code-stream] OpenRouter config:', {
+  hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY
 });
 
-const groq = createGroq({
-  apiKey: process.env.AI_GATEWAY_API_KEY ?? process.env.GROQ_API_KEY,
-  baseURL: isUsingAIGateway ? aiGatewayBaseURL : undefined,
-});
-
-const anthropic = createAnthropic({
-  apiKey: process.env.AI_GATEWAY_API_KEY ?? process.env.ANTHROPIC_API_KEY,
-  baseURL: isUsingAIGateway ? aiGatewayBaseURL : (process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com/v1'),
-});
-
-const googleGenerativeAI = createGoogleGenerativeAI({
-  apiKey: process.env.AI_GATEWAY_API_KEY ?? process.env.GEMINI_API_KEY,
-  baseURL: isUsingAIGateway ? aiGatewayBaseURL : undefined,
-});
-
-const openai = createOpenAI({
-  apiKey: process.env.AI_GATEWAY_API_KEY ?? process.env.OPENAI_API_KEY,
-  baseURL: isUsingAIGateway ? aiGatewayBaseURL : process.env.OPENAI_BASE_URL,
+const openrouter = createOpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
 });
 
 // Helper function to analyze user preferences from conversation history
@@ -90,7 +66,7 @@ declare global {
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, model = 'openai/gpt-oss-20b', context, isEdit = false } = await request.json();
+    const { prompt, model = 'openrouter/openai/gpt-5.2-codex', context, isEdit = false } = await request.json();
     
     console.log('[generate-ai-code-stream] Received request:');
     console.log('[generate-ai-code-stream] - prompt:', prompt);
@@ -575,6 +551,22 @@ Remember: You are a SURGEON making a precise incision, not an artist repainting 
           }
         }
         
+        const scrapedWebsites = context?.conversationContext?.scrapedWebsites || [];
+        const latestScrapedWebsite = scrapedWebsites[scrapedWebsites.length - 1];
+        const scrapedLanguage = latestScrapedWebsite?.content?.language
+          || latestScrapedWebsite?.content?.metadata?.language
+          || latestScrapedWebsite?.content?.metadata?.lang
+          || latestScrapedWebsite?.content?.metadata?.locale
+          || latestScrapedWebsite?.content?.metadata?.ogLocale
+          || latestScrapedWebsite?.content?.metadata?.contentLanguage;
+        const languageLabel = scrapedLanguage && scrapedLanguage !== 'unknown' ? scrapedLanguage : 'the original language from the scraped content';
+        const languageInstruction = scrapedWebsites.length > 0 ? `
+WEBSITE LANGUAGE PRESERVATION:
+- Original language: ${languageLabel}
+- Preserve the original language in all text, navigation, and UI copy
+- Do NOT translate unless the user explicitly asks
+` : '';
+
         // Build system prompt with conversation awareness
         let systemPrompt = `You are an expert React developer with perfect memory of the conversation. You maintain context across messages and remember scraped websites, generated components, and applied code. Generate clean, modern React code for Vite applications.
 ${conversationContext}
@@ -619,6 +611,8 @@ When recreating/cloning a website, you MUST include:
 3. **Main Content Sections** - Features, Services, About, etc.
 4. **Footer** - Contact info, links, copyright (Footer.jsx)
 5. **App.jsx** - Main app component that imports and uses all components
+
+${languageInstruction}
 
 ${isEdit ? `CRITICAL: THIS IS AN EDIT TO AN EXISTING APPLICATION
 
@@ -1213,33 +1207,11 @@ MORPH FAST APPLY MODE (EDIT-ONLY):
         const packagesToInstall: string[] = [];
         
         // Determine which provider to use based on model
-        const isAnthropic = model.startsWith('anthropic/');
-        const isGoogle = model.startsWith('google/');
-        const isOpenAI = model.startsWith('openai/');
-        const isKimiGroq = model === 'moonshotai/kimi-k2-instruct-0905';
-        const modelProvider = isAnthropic ? anthropic : 
-                              (isOpenAI ? openai : 
-                              (isGoogle ? googleGenerativeAI : 
-                              (isKimiGroq ? groq : groq)));
-        
-        // Fix model name transformation for different providers
-        let actualModel: string;
-        if (isAnthropic) {
-          actualModel = model.replace('anthropic/', '');
-        } else if (isOpenAI) {
-          actualModel = model.replace('openai/', '');
-        } else if (isKimiGroq) {
-          // Kimi on Groq - use full model string
-          actualModel = 'moonshotai/kimi-k2-instruct-0905';
-        } else if (isGoogle) {
-          // Google uses specific model names - convert our naming to theirs  
-          actualModel = model.replace('google/', '');
-        } else {
-          actualModel = model;
-        }
+        const isOpenRouter = model.startsWith('openrouter/');
+        const actualModel = isOpenRouter ? model.replace('openrouter/', '') : model;
+        const modelProvider = openrouter;
 
-        console.log(`[generate-ai-code-stream] Using provider: ${isAnthropic ? 'Anthropic' : isGoogle ? 'Google' : isOpenAI ? 'OpenAI' : 'Groq'}, model: ${actualModel}`);
-        console.log(`[generate-ai-code-stream] AI Gateway enabled: ${isUsingAIGateway}`);
+        console.log(`[generate-ai-code-stream] Using provider: OpenRouter, model: ${actualModel}`);
         console.log(`[generate-ai-code-stream] Model string: ${model}`);
 
         // Make streaming API call with appropriate provider
@@ -1307,17 +1279,17 @@ It's better to have 3 complete files than 10 incomplete files.`
           ],
           maxTokens: 8192, // Reduce to ensure completion
           stopSequences: [] // Don't stop early
-          // Note: Neither Groq nor Anthropic models support tool/function calling in this context
+          // Note: Tool/function calling is disabled in this context
           // We use XML tags for package detection instead
         };
         
         // Add temperature for non-reasoning models
-        if (!model.startsWith('openai/gpt-5')) {
+        if (!actualModel.startsWith('openai/gpt-5')) {
           streamOptions.temperature = 0.7;
         }
         
         // Add reasoning effort for GPT-5 models
-        if (isOpenAI) {
+        if (actualModel.startsWith('openai/gpt-5')) {
           streamOptions.experimental_providerMetadata = {
             openai: {
               reasoningEffort: 'high'
@@ -1336,8 +1308,6 @@ It's better to have 3 complete files than 10 incomplete files.`
           } catch (streamError: any) {
             console.error(`[generate-ai-code-stream] Error calling streamText (attempt ${retryCount + 1}/${maxRetries + 1}):`, streamError);
             
-            // Check if this is a Groq service unavailable error
-            const isGroqServiceError = isKimiGroq && streamError.message?.includes('Service unavailable');
             const isRetryableError = streamError.message?.includes('Service unavailable') || 
                                     streamError.message?.includes('rate limit') ||
                                     streamError.message?.includes('timeout');
@@ -1355,26 +1325,12 @@ It's better to have 3 complete files than 10 incomplete files.`
               // Wait before retry with exponential backoff
               await new Promise(resolve => setTimeout(resolve, retryCount * 2000));
               
-              // If Groq fails, try switching to a fallback model
-              if (isGroqServiceError && retryCount === maxRetries) {
-                console.log('[generate-ai-code-stream] Groq service unavailable, falling back to GPT-4');
-                streamOptions.model = openai('gpt-4-turbo');
-                actualModel = 'gpt-4-turbo';
-              }
             } else {
               // Final error, send to user
               await sendProgress({ 
                 type: 'error', 
-                message: `Failed to initialize ${isGoogle ? 'Gemini' : isAnthropic ? 'Claude' : isOpenAI ? 'GPT-5' : isKimiGroq ? 'Kimi (Groq)' : 'Groq'} streaming: ${streamError.message}` 
+                message: `Failed to initialize OpenRouter streaming: ${streamError.message}` 
               });
-              
-              // If this is a Google model error, provide helpful info
-              if (isGoogle) {
-                await sendProgress({ 
-                  type: 'info', 
-                  message: 'Tip: Make sure your GEMINI_API_KEY is set correctly and has proper permissions.' 
-                });
-              }
               
               throw streamError;
             }
@@ -1726,30 +1682,12 @@ Provide the complete file content without any truncation. Include all necessary 
                 
                 // Make a focused API call to complete this specific file
                 // Create a new client for the completion based on the provider
-                let completionClient;
-                if (model.includes('gpt') || model.includes('openai')) {
-                  completionClient = openai;
-                } else if (model.includes('claude')) {
-                  completionClient = anthropic;
-                } else if (model === 'moonshotai/kimi-k2-instruct-0905') {
-                  completionClient = groq;
-                } else {
-                  completionClient = groq;
-                }
+                const completionClient = openrouter;
                 
                 // Determine the correct model name for the completion
-                let completionModelName: string;
-                if (model === 'moonshotai/kimi-k2-instruct-0905') {
-                  completionModelName = 'moonshotai/kimi-k2-instruct-0905';
-                } else if (model.includes('openai')) {
-                  completionModelName = model.replace('openai/', '');
-                } else if (model.includes('anthropic')) {
-                  completionModelName = model.replace('anthropic/', '');
-                } else if (model.includes('google')) {
-                  completionModelName = model.replace('google/', '');
-                } else {
-                  completionModelName = model;
-                }
+                const completionModelName = model.startsWith('openrouter/')
+                  ? model.replace('openrouter/', '')
+                  : model;
                 
                 const completionResult = await streamText({
                   model: completionClient(completionModelName),
@@ -1760,7 +1698,7 @@ Provide the complete file content without any truncation. Include all necessary 
                     },
                     { role: 'user', content: completionPrompt }
                   ],
-                  temperature: model.startsWith('openai/gpt-5') ? undefined : appConfig.ai.defaultTemperature
+                  temperature: completionModelName.startsWith('openai/gpt-5') ? undefined : appConfig.ai.defaultTemperature
                 });
                 
                 // Get the full text from the stream
