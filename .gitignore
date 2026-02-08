@@ -1,0 +1,13 @@
+# Environment files with secrets
+.env
+*.env.local
+
+# Node
+node_modules/
+
+# Engagement artifacts (generated per-audit)
+analysis/
+
+# OS
+.DS_Store
+Thumbs.db

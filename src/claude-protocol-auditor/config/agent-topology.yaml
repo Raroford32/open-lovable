@@ -1,0 +1,133 @@
+# Agent Topology Configuration v3.0
+# Parallel Intelligence → Convergence → Cook Architecture
+#
+# NOT sequential-convergence (v2.0 — too slow, no parallel benefit)
+# NOT hierarchical-mesh (v1.0 — scatter-shot, no focus)
+# This is: WIDE PARALLEL LENSES → CONVERGENCE FUNNEL → DEEP COOK
+
+topology: parallel-convergence-cook
+
+pipeline:
+  phase1_pin_reality:
+    execution: sequential
+    agents:
+      - reality-anchor
+      - universe-cartographer
+    gate: "engagement workspace exists, RPC validated, fork block confirmed, source code acquired"
+    on_failure: STOP
+
+  phase2_parallel_intelligence:
+    execution: parallel  # ALL 8 agents run SIMULTANEOUSLY
+    agents:
+      - protocol-logic-dissector     # Lens: intent vs implementation, implicit invariants
+      - economic-model-analyst       # Lens: value equations, custody, measurement-settlement
+      - state-machine-explorer       # Lens: implicit states, transitions, desynchronization
+      - cross-function-weaver        # Lens: state dependencies, stale data, composition bugs
+      - temporal-sequence-analyst    # Lens: ordering, timing, epoch boundaries
+      - numeric-precision-analyst    # Lens: arithmetic, exchange rates, rounding
+      - oracle-external-analyst      # Lens: external trust, manipulation economics
+      - control-flow-mapper          # Lens: authority, governance timing, keeper deps
+    max_agents: 8
+    gate: "all 8 agents completed, each with non-trivial on-mission output"
+    on_failure: "re-spawn failed agents with clearer instructions"
+
+  phase3_convergence:
+    execution: single
+    agent: convergence-synthesizer
+    input: "ALL Phase 2 agent outputs"
+    gate: "convergence matrix built, at least 1 convergence point with score >= 50"
+    scoring: "convergence_density × value_impact × sequence_complexity × novelty"
+    output:
+      - convergence_matrix
+      - ranked_convergence_points
+      - vulnerability_thesis_for_top_CP
+      - recommended_deep_dive_specialists
+    on_failure: "report 'no convergence detected — protocol appears robust'"
+
+  phase3_5_quick_validation:
+    execution: single
+    agent: orchestrator  # Orchestrator does this directly (1 cast call or simulation)
+    gate: "quick check supports or contradicts the committed convergence point"
+    on_contradict: "pivot to next CP"
+    on_support: "proceed to phase4"
+
+  phase4_deep_drill:
+    execution: parallel
+    agents: "DYNAMIC — 1-3 on-demand specialists selected by convergence-synthesizer"
+    max_agents: 3
+    selection_rule: "convergence-synthesizer recommends based on CP characteristics"
+    gate: "specialists CONFIRM or CONTRADICT the committed convergence point"
+    on_contradict: "trigger abandonment protocol"
+
+  phase5_scenario_cooking:
+    execution: single
+    agent: scenario-cooker
+    input: "committed CP + convergence thesis + Phase 2 insights + Phase 4 deep-dive"
+    max_retries: 1
+    gate: "working exploit with positive net profit, verified on pinned fork"
+    on_failure: "trigger abandonment protocol"
+
+  phase6_proof:
+    execution: sequential
+    agents:
+      - proof-constructor
+      - adversarial-reviewer
+    gate: "E3 proof survives adversarial review"
+    on_failure: "trigger abandonment protocol"
+
+# Abandonment and pivot protocol
+abandonment_protocol:
+  max_pivots: 3
+  on_abandon:
+    - "Record failed CP with reason in memory.md"
+    - "Increment pivot counter"
+    - "If pivot_count < 3: commit to next backup CP from phase3"
+    - "If no backup CPs: re-run convergence-synthesizer with updated memory"
+    - "If pivot_count >= 3: conclude engagement"
+
+# Phase 2 agent output paths
+phase2_outputs:
+  protocol-logic-dissector: "<engagement_root>/agent-outputs/protocol-logic-dissector.md"
+  economic-model-analyst: "<engagement_root>/agent-outputs/economic-model-analyst.md"
+  state-machine-explorer: "<engagement_root>/agent-outputs/state-machine-explorer.md"
+  cross-function-weaver: "<engagement_root>/agent-outputs/cross-function-weaver.md"
+  temporal-sequence-analyst: "<engagement_root>/agent-outputs/temporal-sequence-analyst.md"
+  numeric-precision-analyst: "<engagement_root>/agent-outputs/numeric-precision-analyst.md"
+  oracle-external-analyst: "<engagement_root>/agent-outputs/oracle-external-analyst.md"
+  control-flow-mapper: "<engagement_root>/agent-outputs/control-flow-mapper.md"
+
+# On-demand deep-dive specialist selection matrix
+# Maps convergence point characteristics to the agents that should analyze them
+deep_dive_selection:
+  value_math: [flash-economics-lab]
+  exchange_rate: [flash-economics-lab, numeric-boundary-explorer]
+  callbacks: [callback-reentry-analyst]
+  proxy_upgrade: [upgrade-proxy-analyst, storage-layout-hunter]
+  governance: [governance-attack-lab]
+  bridge_crosschain: [bridge-crosschain-analyst]
+  token_behavior: [token-semantics-analyst]
+  evm_internals: [evm-underbelly-lab]
+  storage_layout: [storage-layout-hunter]
+  cost_modeling: [flash-economics-lab]
+
+# Memory protocol
+memory:
+  file: "<engagement_root>/memory.md"
+  max_lines: 200
+  update_rule: "after EVERY phase completes"
+  content_rule: "only belief-changing deltas"
+
+# Key principles
+principles:
+  parallel_for_coverage: >
+    Phase 2 parallel intelligence provides MAXIMUM COVERAGE of analytical perspectives.
+    8 different lenses on the same code simultaneously. This is WHERE we get our edge.
+  convergence_for_signal: >
+    Where MULTIPLE LENSES converge on the same code region = that's the real vulnerability.
+    Individual agent findings are noise. Multi-lens convergence is signal.
+  focus_for_depth: >
+    After convergence, ALL effort serves ONE convergence point.
+    ONE deep investigation with 4+ confirming lenses beats 14 shallow investigations.
+  cook_for_proof: >
+    The scenario cooker builds ONE exploit step-by-step, tested at each step on fork.
+    No hypothetical scenarios. Every step must execute successfully on the pinned fork.

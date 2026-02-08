@@ -1,0 +1,329 @@
+# Coverage Gates v3.0
+# Aligned with: Parallel Intelligence → Convergence → Cook pipeline
+# Each gate maps to a specific phase and responsible agent(s)
+
+gates:
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 1: PIN REALITY
+  # ═══════════════════════════════════════════════════════
+
+  environment_pinned:
+    phase: 1
+    description: "Fork environment validated and pinned"
+    required: true
+    checks:
+      - rpc_responsive: "RPC endpoint returns data at fork_block"
+      - chain_id_confirmed: "Chain ID matches expected"
+      - fork_block_stable: "Fork block is finalized (not subject to reorgs)"
+      - seed_addresses_are_contracts: "All seed addresses have code at fork_block"
+    responsible_agent: reality-anchor
+    on_failure: STOP
+
+  contract_universe_mapped:
+    phase: 1
+    description: "Complete contract universe discovered and source acquired"
+    required: true
+    checks:
+      - proxy_resolution: "All proxies resolved to current implementations"
+      - source_acquired: "Verified source code for all in-scope contracts"
+      - abi_available: "ABI available for all contracts (from source or bytecode)"
+      - dependency_graph: "Contract-to-contract dependency graph built"
+      - entrypoints_listed: "All external/public function entrypoints catalogued"
+    responsible_agent: universe-cartographer
+    artifact: "agent-outputs/universe-cartographer.md"
+    on_failure: STOP
+
+  trust_config_inventory:
+    phase: 1
+    description: "Trust boundaries, config parameters, and asset flows extracted as raw material for Phase 2"
+    required: true
+    checks:
+      - trust_boundary_map: "Privileged roles (owner, admin, guardian, keeper, operator) mapped with address types"
+      - multisig_detection: "Admin addresses classified as EOA, multisig (with threshold), timelock, or contract"
+      - upgrade_chains: "Complete upgrade permission chains traced (proxy → admin → timelock → multisig)"
+      - emergency_powers: "Pause, shutdown, rescue, sweep functions identified with their callers"
+      - config_snapshot: "Current parameter values read (fees, thresholds, caps, limits, oracle feeds)"
+      - oracle_feed_inventory: "Oracle addresses, types, decimals, heartbeats, last update timestamps"
+      - asset_flow_graph: "Token balances per contract, value flow directions, concentration risk"
+      - mutability_classification: "Each parameter classified as immutable, governance-gated, or operator-changeable"
+    responsible_agent: universe-cartographer
+    artifacts:
+      - "notes/trust-boundary-inventory.md"
+      - "notes/config-snapshot.md"
+      - "notes/asset-flow-graph.md"
+    on_failure: WARN  # Phase 2 can proceed with partial data but quality degrades
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 2: PARALLEL INTELLIGENCE (all 8 agents)
+  # ═══════════════════════════════════════════════════════
+
+  protocol_logic_analyzed:
+    phase: 2
+    description: "Protocol's own logic dissected for intent-implementation gaps"
+    required: true
+    checks:
+      - intent_vs_actual: "Every core function analyzed for intent vs actual behavior gaps"
+      - implicit_invariants: "At least 5 implicit invariants extracted with code evidence"
+      - violation_surfaces: "Multi-function violation sequences mapped for each invariant"
+      - unique_features: "Protocol-specific unique patterns identified and risk-analyzed"
+      - what_if_reasoning: "What-if scenarios applied to all core functions"
+      - post_upgrade_assumptions: "Assumptions from prior versions validated against current code"
+      - eip7702_trust_impact: "EOA/contract distinction checks identified and EIP-7702 impact assessed"
+      - assumption_brittleness: "Each implicit invariant scored for brittleness (1-10)"
+    responsible_agent: protocol-logic-dissector
+    artifact: "agent-outputs/protocol-logic-dissector.md"
+
+  economic_model_analyzed:
+    phase: 2
+    description: "Complete economic model built and stress-tested"
+    required: true
+    checks:
+      - value_equations_extracted: "Exact math formula for every value computation"
+      - custody_vs_entitlement: "Balance sheet built — custody assets vs promised entitlements"
+      - measurement_settlement_gaps: "Every measurement-to-settlement window identified"
+      - stress_tests: "Zero-state, donation, sandwich, liquidation scenarios modeled"
+      - profit_paths: "Viable profit paths identified with cost analysis"
+    responsible_agent: economic-model-analyst
+    artifact: "agent-outputs/economic-model-analyst.md"
+
+  state_machine_analyzed:
+    phase: 2
+    description: "Protocol state machine fully mapped including implicit states"
+    required: true
+    checks:
+      - implicit_states: "State space includes implicit states from variable combinations"
+      - transition_graph: "Complete directed graph of state transitions"
+      - desynchronization_windows: "Coupled variable desync windows identified"
+      - impossible_state_testing: "Impossible states tested for reachability"
+      - race_conditions: "Multi-state-machine race conditions analyzed"
+      - repetition_shaping: "State transitions analyzed for exploitable shaping through N repetitions"
+      - precision_compounding: "Numeric precision loss tracked across state transition sequences"
+      - config_state_coupling: "Parameter-state combinations analyzed for unsafe interactions"
+    responsible_agent: state-machine-explorer
+    artifact: "agent-outputs/state-machine-explorer.md"
+
+  cross_function_analyzed:
+    phase: 2
+    description: "Cross-function interactions mapped for emergent behaviors"
+    required: true
+    checks:
+      - state_dependency_graph: "Every storage variable mapped to reader/writer functions"
+      - stale_data_windows: "Every external call analyzed for stale data exploitation"
+      - composition_analysis: "Function pair composition tested for ordering sensitivity"
+      - emergent_behaviors: "Multi-function sequences tested for emergent effects"
+      - trust_boundaries: "Inter-contract trust assumptions analyzed"
+      - differential_test_pairs: "Preview vs execute and accounting vs settlement pairs compared"
+      - mid_tx_ordering: "Mid-transaction state update ordering mapped with callback windows"
+      - permissionless_external: "Permissionless accounting + manipulable external state patterns identified"
+    responsible_agent: cross-function-weaver
+    artifact: "agent-outputs/cross-function-weaver.md"
+
+  temporal_analysis_complete:
+    phase: 2
+    description: "Time and ordering dependencies mapped"
+    required: true
+    checks:
+      - ordering_dependencies: "Implicit ordering assumptions identified per function"
+      - multi_block_windows: "Cross-block state exploitation opportunities mapped"
+      - epoch_boundaries: "Epoch/period boundary transition risks analyzed"
+      - temporal_invariants: "Update-before-use and completion-before-deadline invariants"
+      - tx_ordering_exploitation: "Profitable transaction ordering sequences identified"
+    responsible_agent: temporal-sequence-analyst
+    artifact: "agent-outputs/temporal-sequence-analyst.md"
+
+  numeric_precision_analyzed:
+    phase: 2
+    description: "Arithmetic precision and exchange rate edge cases analyzed"
+    required: true
+    checks:
+      - arithmetic_tracing: "Every value equation traced through exact arithmetic path"
+      - exchange_rate_edges: "First-depositor, donation, inflation attacks analyzed"
+      - rounding_accumulation: "Cyclic operation rounding leak quantified"
+      - type_scale_mismatches: "Decimal, signed/unsigned, and downcast issues checked"
+      - extreme_values: "Boundary value behavior (0, 1 wei, max) tested"
+      - library_as_protocol: "Math library behavior verified at protocol-specific value ranges"
+      - scale_amplification: "Rounding leaks quantified at realistic scale (10,000+ operations)"
+      - low_liquidity_amplification: "Manipulation cost modeled as function of pool depth"
+      - cumulative_precision_map: "Complete rounding direction map for every division in protocol"
+      - repeated_operation_compounding: "Repeated operation sequences tested for compounding extraction"
+    responsible_agent: numeric-precision-analyst
+    artifact: "agent-outputs/numeric-precision-analyst.md"
+
+  oracle_external_analyzed:
+    phase: 2
+    description: "External dependencies mapped with manipulation economics"
+    required: true
+    checks:
+      - trust_map: "Every external call mapped with protocol assumptions"
+      - manipulation_economics: "Oracle manipulation cost vs profit calculated"
+      - external_failure_modes: "Pause, blacklist, parameter change impacts modeled"
+      - cross_protocol_composition: "Transitive dependency and flash loan paths analyzed"
+      - token_behavior: "Non-standard token behavior (fee, rebase, pause) checked"
+      - bridge_cross_chain: "Bridge/cross-chain message trust and finality assumptions mapped"
+      - hook_callback_surface: "Hook and callback injection surfaces mapped with state exposure"
+      - bidirectional_dependencies: "Both inbound and outbound integration dependencies analyzed"
+      - assumption_checklist: "Explicit assumption inventory for every external dependency"
+    responsible_agent: oracle-external-analyst
+    artifact: "agent-outputs/oracle-external-analyst.md"
+
+  control_flow_analyzed:
+    phase: 2
+    description: "Authority graph and control dependencies mapped"
+    required: true
+    checks:
+      - authority_graph: "Every mutable parameter mapped to setter and access control"
+      - indirect_authority: "Parameter change → behavior change → exploit chains traced"
+      - governance_timing: "Timelock/governance execution timing windows analyzed"
+      - keeper_dependencies: "Keeper failure and delay impacts quantified"
+      - upgrade_impact: "Current vs previous implementation differences analyzed"
+      - eip7702_threat_model: "EIP-7702/AA impact analyzed for every privileged caller assumed to be EOA"
+      - privilege_blast_radius: "Max damage quantified per privileged role if key compromised"
+      - deployment_init_validation: "Constructor/initialize assumptions and immutable values validated"
+      - post_upgrade_breaks: "Behavioral assumptions from prior versions checked against current code"
+    responsible_agent: control-flow-mapper
+    artifact: "agent-outputs/control-flow-mapper.md"
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 3: CONVERGENCE
+  # ═══════════════════════════════════════════════════════
+
+  convergence_detected:
+    phase: 3
+    description: "Multi-lens convergence matrix built and convergence points ranked"
+    required: true
+    checks:
+      - all_outputs_read: "All 8 Phase 2 agent outputs read and normalized"
+      - convergence_matrix: "Code regions × analytical lenses matrix constructed"
+      - convergence_points: "Regions flagged by 2+ lenses identified and scored"
+      - top_cp_thesis: "Vulnerability thesis constructed for top convergence point"
+      - specialists_recommended: "Deep-dive specialists recommended for Phase 4"
+      - amplifiers_applied: "2026 convergence amplifiers evaluated (EIP-7702, differential mismatch, library-as-protocol, permissionless+external, post-upgrade)"
+    responsible_agent: convergence-synthesizer
+    artifact: "agent-outputs/convergence-synthesizer.md"
+    scoring: "convergence_density × value_impact × sequence_complexity × novelty"
+    minimum_score: 50  # below this = "no sufficiently promising convergence"
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 3.5: STRUCTURED QUICK VALIDATION
+  # ═══════════════════════════════════════════════════════
+
+  quick_validation:
+    phase: 3.5
+    description: "Structured validation of committed convergence point before expensive deep-dive"
+    required: true
+    checks:
+      - value_computation: "State read at fork_block confirms assumed behavior in CP thesis"
+      - differential_test: "Preview vs execute functions compared on fork (if applicable to CP)"
+      - ordering_test: "Mid-transaction update order verified via Tenderly trace (if CP involves state windows)"
+      - trust_test: "Oracle freshness, admin address type, external state assumptions verified"
+      - permissionless_external: "Accounting function callable by anyone AND external state manipulable (if applicable)"
+      - economic_viability: "Extraction value at realistic scale exceeds gas cost at current prices"
+    responsible_agent: orchestrator
+    on_contradict: "trigger pivot to CP-2 via Abandonment Protocol"
+    on_support: "proceed to Phase 4 with evidence from validation"
+    max_cast_calls: 10  # keep this fast — 5 minutes maximum
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 4: DEEP DRILL (on-demand specialists)
+  # ═══════════════════════════════════════════════════════
+
+  deep_drill_complete:
+    phase: 4
+    description: "On-demand specialists confirm or contradict the committed convergence point"
+    required: true
+    checks:
+      - specialists_completed: "All spawned specialists completed with findings"
+      - thesis_verdict: "Specialists collectively CONFIRM or CONTRADICT the thesis"
+      - exploit_details: "If confirmed, specific exploit details provided for cooker"
+    on_contradict: "trigger abandonment protocol"
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 5: COOK
+  # ═══════════════════════════════════════════════════════
+
+  scenario_cooked:
+    phase: 5
+    description: "Complete exploit scenario built and tested on fork"
+    required: true
+    checks:
+      - preconditions_verified: "All pre-conditions verified with cast at fork_block"
+      - steps_tested: "Each attack step tested individually on fork"
+      - bundle_tested: "Complete sequence tested as atomic bundle"
+      - poc_written: "Foundry PoC written and passing"
+      - cost_analysis: "ALL costs itemized (gas, flash fees, slippage, MEV, protocol fees)"
+      - net_profit: "Net profit is positive and significant"
+      - robustness: "Profitable at gas+20%, liquidity-20%, timing+1 block"
+    responsible_agent: scenario-cooker
+    artifact: "agent-outputs/scenario-cooker.md"
+    max_retries: 1
+
+  # ═══════════════════════════════════════════════════════
+  # PHASE 6: PROOF (E3 gate)
+  # ═══════════════════════════════════════════════════════
+
+  e3_proof:
+    phase: 6
+    description: "Finding meets E3 reporting threshold — Exploit + Explanation + Evidence"
+    required_for: vulnerability_reporting
+    checks:
+      - reproducible: "Multi-step sequence reproducible on pinned fork"
+      - permissionless: "No assumed privileges — everything obtained within the sequence"
+      - profitable: "Net profit after ALL costs (gas, flash fees, slippage, MEV, protocol fees)"
+      - robust_gas: "Profitable with gas price +20%"
+      - robust_liquidity: "Profitable with liquidity depth -20%"
+      - robust_timing: "Profitable with timing +1 block"
+      - ordering_documented: "Ordering requirement (public mempool / private relay / builder)"
+      - costs_itemized: "Every cost component explicitly calculated"
+      - adversarial_review: "Proof survives adversarial reviewer challenge"
+    responsible_agents:
+      - proof-constructor
+      - adversarial-reviewer
+    artifact: "proofs/CP-N/poc.t.sol"
+
+# On-demand deep-dive specialists available for Phase 4
+available_specialists:
+  flash-economics-lab:
+    file: "agents/tier2-specialists/flash-economics-lab.md"
+    expertise: "Attack economics, flash loan modeling, cost analysis"
+    spawn_when: "Convergence involves value math, exchange rates, or needs cost modeling"
+
+  callback-reentry-analyst:
+    file: "agents/tier2-specialists/callback-reentry-analyst.md"
+    expertise: "Callback exploitation, stale state during external calls"
+    spawn_when: "Convergence involves external calls, callbacks, or hooks"
+
+  upgrade-proxy-analyst:
+    file: "agents/tier2-specialists/upgrade-proxy-analyst.md"
+    expertise: "Upgrade patterns, storage layout, implementation diffs"
+    spawn_when: "Convergence involves proxy upgrades or storage layout"
+
+  storage-layout-hunter:
+    file: "agents/tier2-specialists/storage-layout-hunter.md"
+    expertise: "Storage slot analysis, layout collisions, packed variables"
+    spawn_when: "Convergence involves storage layout or proxy upgrades"
+
+  governance-attack-lab:
+    file: "agents/tier2-specialists/governance-attack-lab.md"
+    expertise: "Governance exploits, voting manipulation, timelock bypass"
+    spawn_when: "Convergence involves governance or timelock interactions"
+
+  bridge-crosschain-analyst:
+    file: "agents/tier2-specialists/bridge-crosschain-analyst.md"
+    expertise: "Bridge security, message verification, replay protection"
+    spawn_when: "Convergence involves bridges or cross-chain messaging"
+
+  token-semantics-analyst:
+    file: "agents/tier2-specialists/token-semantics-analyst.md"
+    expertise: "Non-standard token behavior, fee-on-transfer, rebasing"
+    spawn_when: "Convergence involves token behavior assumptions"
+
+  evm-underbelly-lab:
+    file: "agents/tier2-specialists/evm-underbelly-lab.md"
+    expertise: "EVM internals, assembly, transient storage, create2"
+    spawn_when: "Convergence involves assembly or EVM-level operations"
+
+  numeric-boundary-explorer:
+    file: "agents/tier2-specialists/numeric-boundary-explorer.md"
+    expertise: "Deep boundary testing, extreme value behavior"
+    spawn_when: "Convergence involves exchange rate edges or arithmetic extremes"

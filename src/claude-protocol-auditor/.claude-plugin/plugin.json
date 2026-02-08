@@ -1,0 +1,55 @@
+{
+  "name": "claude-protocol-auditor",
+  "version": "3.0.0",
+  "description": "Multi-agent intelligence system for discovering novel protocol-logic vulnerabilities in heavily audited DeFi protocols. Parallel lenses → convergence → cook architecture.",
+  "keywords": [
+    "defi",
+    "security",
+    "audit",
+    "vulnerability",
+    "smart-contracts",
+    "protocol-analysis",
+    "multi-agent",
+    "solidity",
+    "foundry",
+    "evm"
+  ],
+  "strict": true,
+  "commands": [
+    "commands/audit.md"
+  ],
+  "agents": [
+    "agents/tier1-foundation/orchestrator.md",
+    "agents/tier1-foundation/convergence-synthesizer.md",
+    "agents/tier1-foundation/reality-anchor.md",
+    "agents/tier1-foundation/universe-cartographer.md",
+    "agents/tier2-specialists/protocol-logic-dissector.md",
+    "agents/tier2-specialists/economic-model-analyst.md",
+    "agents/tier2-specialists/state-machine-explorer.md",
+    "agents/tier2-specialists/cross-function-weaver.md",
+    "agents/tier2-specialists/temporal-sequence-analyst.md",
+    "agents/tier2-specialists/numeric-precision-analyst.md",
+    "agents/tier2-specialists/oracle-external-analyst.md",
+    "agents/tier2-specialists/control-flow-mapper.md",
+    "agents/tier2-specialists/bridge-crosschain-analyst.md",
+    "agents/tier2-specialists/callback-reentry-analyst.md",
+    "agents/tier2-specialists/evm-underbelly-lab.md",
+    "agents/tier2-specialists/flash-economics-lab.md",
+    "agents/tier2-specialists/governance-attack-lab.md",
+    "agents/tier2-specialists/numeric-boundary-explorer.md",
+    "agents/tier2-specialists/storage-layout-hunter.md",
+    "agents/tier2-specialists/token-semantics-analyst.md",
+    "agents/tier2-specialists/upgrade-proxy-analyst.md",
+    "agents/tier4-execution/scenario-cooker.md",
+    "agents/tier4-execution/proof-constructor.md",
+    "agents/tier4-execution/adversarial-reviewer.md",
+    "agents/tier4-execution/report-synthesizer.md"
+  ],
+  "skills": [
+    "skills/deep-composition-analysis.md",
+    "skills/economic-attack-modeling.md",
+    "skills/novel-invariant-mining.md",
+    "skills/state-machine-fuzzing.md",
+    "skills/temporal-attack-synthesis.md"
+  ]
+}
