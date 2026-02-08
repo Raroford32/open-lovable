@@ -1,15 +1,15 @@
 ---
-description: "Run a full DeFi protocol vulnerability audit using the Parallel Intelligence → Convergence → Cook pipeline"
+description: "Launch attacker-mindset vulnerability discovery against a deployed DeFi protocol using Parallel Intelligence → Convergence → Cook pipeline"
 ---
 
-# /audit — Protocol Vulnerability Discovery
+# /hunt — Protocol Vulnerability Discovery
 
-Launch a complete multi-agent security audit against a deployed DeFi protocol.
+Think like an attacker. Hunt novel, unnamed, complex protocol-logic vulnerabilities in heavily audited DeFi protocols — the kind where every basic pattern has been checked 10 times and the ONLY bugs that remain are buried in the protocol's OWN logic complexity.
 
 ## Usage
 
 ```
-/audit <protocol_slug> <chain_id> <fork_block> <seed_addresses>
+/hunt <protocol_slug> <chain_id> <fork_block> <seed_addresses>
 ```
 
 **Parameters:**
@@ -20,7 +20,7 @@ Launch a complete multi-agent security audit against a deployed DeFi protocol.
 
 **Example:**
 ```
-/audit morpho-blue 1 19500000 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
+/hunt morpho-blue 1 19500000 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb
 ```
 
 ## What Happens

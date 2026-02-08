@@ -5,7 +5,7 @@
   "keywords": [
     "defi",
     "security",
-    "audit",
+    "exploit-discovery",
     "vulnerability",
     "smart-contracts",
     "protocol-analysis",
@@ -16,7 +16,7 @@
   ],
   "strict": true,
   "commands": [
-    "commands/audit.md"
+    "commands/hunt.md"
   ],
   "agents": [
     "agents/tier1-foundation/orchestrator.md",
